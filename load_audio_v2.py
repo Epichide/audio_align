@@ -169,7 +169,15 @@ def correlate(signal1,signal2,sample_rate,method="fft",absnorm=True):
     # plt.show()
     # mix_audio(signal1,signal2,shift=lags[t21])
     return lag, fast_second
-
+    
+def correlate_business(signal1,signal2):
+    c21 = np.correlate((signal1), signal2, mode='full')
+    t21 = np.argmax(c21)
+    lags = np.arange(-len(signal2) + 1, len(signal1))
+    idx=lags[t21]
+    fast_second = lags[t21] / FIX_FPS
+    return fast_second
+    
 def audio_align(video1,vedio2,sample_rate=8000):
     signal1=load_audio(video1,sample_rate=sample_rate)
     signal2= load_audio(vedio2,sample_rate=sample_rate)
@@ -234,3 +242,4 @@ def videos_align(videos):
 if __name__ == '__main__':
     videos_align([r"1.mp4",r"2.mp4","3.mp4"])
     videos_align([r"4.mp4",r"5.mp4"])
+
