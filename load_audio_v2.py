@@ -22,6 +22,21 @@ def get_basename(filepath):
     return basename
 
 # ================== load audio ====================
+def load_audio_v2(video_path,sample_rate=8000):
+    """从视频中提取音频并返回音频数组和采样率"""
+    # 加载视频文件
+    video = VideoFileClip(video_path)
+    # 提取音频部分
+    audio = video.audio
+    # 获取音频数组（numpy array）和采样率
+    audio_array = audio.to_soundarray(fps=sample_rate)
+    # sample_rate = audio.fps
+    # 如果是立体声（双声道），转换为单声道（可选）
+    if audio_array.ndim == 2:
+        audio_array = audio_array[:,1]
+    # 关闭视频文件释放资源
+    video.close()
+    return audio_array
 def load_by_audiosegment_play(vediofile):
     t1=time.time()
     #vediofile="1.mp4"
@@ -114,7 +129,15 @@ def load_audio(vediofile,sample_rate=8000,nbytes=2):
 
 # ================ mix_audio ===============
 
-
+def save_audio_array_as_wav(audio_array, sample_rate=8000, output_path='combined_audio.wav'):
+    """将音频数组保存为WAV文件"""
+    # 确保音频数据是浮点型且在[-1, 1]范围内
+    if audio_array.dtype != np.float32 and audio_array.dtype != np.float64:
+        audio_array = audio_array.astype(np.float32) / np.iinfo(audio_array.dtype).max
+    import soundfile as sf
+    # 保存为WAV文件，使用16位PCM编码
+    sf.write(output_path, audio_array, sample_rate, subtype='PCM_16')
+    print(f"音频已保存为: {output_path}")
 def mix_audio(signal1,signal2,shift=0):
     if shift<0:
         signal2=signal2[shift:]
@@ -242,4 +265,5 @@ def videos_align(videos):
 if __name__ == '__main__':
     videos_align([r"1.mp4",r"2.mp4","3.mp4"])
     videos_align([r"4.mp4",r"5.mp4"])
+
 
